@@ -1,0 +1,86 @@
+SHREEKAMALINEE — VPS / POSTGRESQL EDITION
+Prepared 19 November 2026 from website version 45.
+
+FOR YOUR HOSTING PROVIDER
+
+This separate edition uses a Node.js/Next.js server, PostgreSQL and a
+permanent uploads folder on your VPS. Cloudflare Workers, D1 and R2 are
+not required by this edition. Storage capacity, bandwidth, database and
+backup charges depend on the VPS plan supplied by your provider.
+
+Open Shreekamalinee-Final-VPS-Setup.txt first for the final deployment
+sequence, admin login setup, acceptance checks and domain cutover.
+Use hosting/HOSTING-VPS.md for supplementary technical details.
+The guide assumes a Linux VPS. Provider-specific paths and certificate
+settings must be adjusted before installing the example service/proxy.
+
+CONTENTS
+
+Shreekamalinee-Final-VPS-Setup.txt  Final provider setup instructions.
+source/   Website and admin source, product photos/logo, dependency lockfile,
+          PostgreSQL migration, catalog importer and fresh-admin setup tool.
+data/     Original current-catalog snapshot: 4 main categories,
+          14 subcategories, 113 source records and 194 selectable photos.
+hosting/  Linux deployment guide, Nginx examples and a systemd service.
+
+HOW TO DEPLOY
+
+1. Provide Node.js 24 (tested; minimum 22.13) and npm, a dedicated PostgreSQL database/user,
+   and a permanent real directory for uploaded photos outside app releases.
+2. Extract source/, data/ and hosting/ alongside one another. Read the guide.
+3. Copy source/.env.example to source/.env.production and privately configure
+   DATABASE_URL, UPLOAD_DIR and the canonical HTTPS APP_ORIGIN.
+4. From source/, run npm ci --include=dev, npm run db:migrate and npm run catalog:import.
+   The importer accepts only a fresh, empty destination application database.
+5. Run npm run build on the Linux VPS, then start the production Node service
+   behind Nginx and valid HTTPS. Apply the supplied paths/settings carefully.
+6. Once HTTPS is ready, run the admin setup helper as shown in the final guide
+   and restart the service. The owner uses the private one-hour link to create
+   a fresh destination login. Preserve ADMIN_PASSWORD_PEPPER after setup.
+7. Validate every collection, admin upload, category edit, product reference
+   and WhatsApp order link on staging, then connect the public domain.
+
+VALIDATION AND LIMITS
+
+Local tests passed for PostgreSQL schema/catalog import, transactional SQL,
+admin setup/login/logout, protected mutations, category/product editing,
+price inheritance/overrides, image uploads and streamed image responses,
+ETag/304 handling, stable product links and SK-name references. The original
+194-photo public catalog was preserved after disposable local tests.
+The storefront and admin were checked in desktop and mobile browser layouts.
+
+The production build issue is fixed. Windows builds now serialize generated
+directory creation inside .next, preserving normal filesystem errors. This
+build-only behavior is inactive on Linux and during application startup.
+Three ordinary production builds passed, including a clean rebuild, without
+diagnostic logging or changes to system permissions.
+
+The built application was tested with its production start command against
+native PostgreSQL 18.7 and Nginx 1.30.7. HTTPS API tests used a certificate
+trusted only by the test client; no system trust settings were changed.
+Admin browser checks used the production server on a local address.
+Database records, sessions and uploaded image bytes survived application
+and PostgreSQL restarts. Bulk browser uploads, category prices, image
+swiping and matching WhatsApp references were verified.
+
+The verification host was Windows. Your provider must still configure and
+smoke-test its actual Linux server, database connection, upload directory,
+public HTTPS certificates and DNS before switching the domain. Filesystem
+symlink cases should be rerun on Linux because Windows denied creating the
+test symlinks. This is a deployment check, not an outstanding build failure.
+
+Read verification-summary.json for the precise checks and remaining limits.
+
+DATA AND SECURITY
+
+All 198 referenced static images are packaged in source/public. There were
+no referenced admin-uploaded media files in the initial exported snapshot.
+Future uploads go to UPLOAD_DIR and survive application releases.
+
+The destination uses a fresh admin login. Original passwords, password hashes,
+login sessions, runtime secrets, test database state and test uploads are
+excluded. Keep the destination ADMIN_PASSWORD_PEPPER unchanged after setup.
+
+Keep PostgreSQL data, uploaded photos and protected runtime configuration
+backed up. Do not reimport the initial catalog during normal updates.
+The existing live site and its DNS were not changed while preparing this ZIP.

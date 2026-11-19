@@ -1,0 +1,19 @@
+# Dependencies
+**/node_modules/
+
+# Next.js build output
+**/.next/
+**/.next-dev/
+**/out/
+**/dist/
+
+# Environment files and secrets
+**/.env*
+!**/.env.example
+
+# Logs and cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.tsbuildinfo

@@ -1,0 +1,71 @@
+{
+  "edition": "VPS / PostgreSQL / permanent local image directory",
+  "release": "2026-11-19-production-verified",
+  "verifiedAt": "2026-11-19T09:34:01.753Z",
+  "originalWebsiteVersion": 45,
+  "originalSourceCommit": "3ec3f7535bd8467001196b14f7bdbfca8580b620",
+  "snapshot": {
+    "collections": 4,
+    "subcategories": 14,
+    "sourceProducts": 113,
+    "selectablePhotoProducts": 194,
+    "referencedStaticImages": 198,
+    "referencedUploadedImages": 0
+  },
+  "checksPassed": [
+    "TypeScript compilation check on final source",
+    "Native PostgreSQL 18.7 migration and complete catalog import through node-postgres; migration rerun is idempotent and populated-database import is rejected without changing data",
+    "Parameterized SQL, quoted literals, native parameters, affected-row counts, transaction rollback and commit",
+    "Fresh admin setup helper, expiring private token, renewal and pepper preservation",
+    "HTTPS concurrent fresh-admin setup creates exactly one owner, with login/logout and session revocation",
+    "Cross-origin mutation rejection, secure HttpOnly SameSite cookies, protected API cache headers and frame protection",
+    "Category/subcategory/product CRUD, duplicate rejection, price inheritance and individual overrides",
+    "SK-name references, stable product IDs/routes, original 194-photo public catalog preserved",
+    "Real JPEG upload to filesystem, exact byte readback, content type, ETag and HTTP304",
+    "Node and native PostgreSQL restarts preserve uploaded bytes, product IDs, catalog, stored credentials and sessions",
+    "Filesystem traversal/missing-file/size/MIME/no-overwrite checks and streamed response cancellation",
+    "Production browser desktop/mobile checks including two-photo bulk upload, automatic filename names, editable names, inherited category price, swipe gallery, full-image contain and matching SK/WhatsApp reference",
+    "Production HTTPS password-change revocation, expired-session rejection, login throttling and Nginx proxy-header spoofing resistance",
+    "Production Nginx HTTPS template validation, canonical www redirect and no-store security headers",
+    "Repeated bodyless media HEAD responses, exact JPEG bytes, ETag and conditional HTTP304",
+    "Three ordinary production builds including one clean rebuild, without diagnostic logging or permission changes",
+    "Windows build directory queue regression test preserves serialization, callback results and filesystem errors",
+    "All 198 referenced static image files present"
+  ],
+  "environment": {
+    "host": "Windows",
+    "node": "v24.22.1",
+    "database": "Native PostgreSQL 18.7, on-disk test cluster over loopback TCP",
+    "application": "Next.js 16.3.4 production build/start",
+    "proxy": "Nginx 1.30.7; HTTPS test certificate trusted only by the test client, with normal certificate verification enabled; no system trust changes",
+    "browserViewports": [
+      {
+        "width": 390,
+        "height": 844
+      },
+      {
+        "width": 1280,
+        "height": 960
+      }
+    ]
+  },
+  "productionBuild": {
+    "repeatablyVerified": true,
+    "successfulRuns": 3,
+    "cleanRebuilds": 1,
+    "command": "npm run build",
+    "diagnosticLoggingUsed": false,
+    "systemPermissionsChanged": false,
+    "fix": "Windows build-only serialization of mkdir operations within .next; normal errors are propagated. Linux builds and running application are unchanged."
+  },
+  "providerChecksRequired": [
+    "Configure actual PostgreSQL credentials and permanent UPLOAD_DIR",
+    "Deploy and smoke-test the provider Linux server",
+    "Rerun filesystem symlink assertions on Linux; Windows denied creation of the test symlinks",
+    "Install public domain HTTPS certificates and configure canonical DNS/proxy",
+    "Create a fresh owner admin login and test after deployment"
+  ],
+  "exportedAuthenticationRecords": 0,
+  "secretsIncluded": false,
+  "liveWebsiteChanged": false
+}

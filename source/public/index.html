@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore sarees, dress materials, readymades and accessories at Shreekamalinee.">
+<title>Shreekamalinee | Indian Fashion Boutique</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+<a class="brand" href="#" aria-label="Shreekamalinee home"><img src="logo-240.png" srcset="logo-240.png 240w, logo-480.png 480w" sizes="(max-width: 750px) 165px, 210px" width="240" height="98" alt="Shreekamalinee"></a>
+<nav id="collection-nav" aria-label="Collections" aria-busy="true"></nav>
+<div class="header-links">
+<a class="header-instagram" href="https://www.instagram.com/shreekamalinee_/" aria-label="Shreekamalinee on Instagram"><span aria-hidden="true"></span></a>
+<a class="browse" href="#collections">Collections <span aria-hidden="true">↗</span></a>
+</div>
+</header>
+<main>
+<section class="hero" aria-labelledby="hero-title">
+<div class="hero-content">
+<p class="eyebrow">THE INDIAN WARDROBE</p>
+<h1 id="hero-title">Handloom Sarees<br><em>and more.</em></h1>
+<p>Explore Sarees, Dress Material, Readymades and Accessories.</p>
+<a class="button" id="hero-shop" href="#collections">Browse Collections</a>
+<a class="hero-browse" href="#collections">All Collections</a>
+</div>
+</section>
+<section class="collections" id="collections" aria-labelledby="collection-title">
+<div class="section-heading">
+<h2 id="collection-title">Shop by Collection</h2>
+</div>
+<p id="collections-status" class="collections-status" role="status">Loading collections…</p>
+<div class="grid" id="collection-grid"></div>
+</section>
+<section class="detail" hidden aria-labelledby="detail-title">
+<a class="back" href="#collections">← All Collections</a>
+<div class="detail-layout">
+<div class="photo" id="detail-photo"></div>
+<div class="detail-copy">
+<h2 id="detail-title" tabindex="-1"></h2>
+<p id="detail-description"></p>
+<p class="catalog-status" hidden></p>
+</div>
+</div>
+<div id="subcategory-links" class="subcategory-links" role="navigation" aria-label="Subcategories" hidden></div>
+<div class='product-grid' aria-label='Products' hidden></div>
+</section>
+<section class="product-detail detail" hidden aria-labelledby="product-title">
+<a class="back" id="product-back">← Back to collection</a>
+<div class="product-detail-layout">
+<h2 id="product-title" tabindex="-1"></h2>
+<div class="product-media">
+  <div id="main-gallery" class="product-gallery" tabindex="0" role="region" aria-label="Product photos"></div>
+  <div class="gallery-controls">
+    <button id="photo-prev" type="button" aria-label="Previous photo">←</button>
+    <span id="photo-count" aria-live="polite"></span>
+    <button id="photo-next" type="button" aria-label="Next photo">→</button>
+  </div>
+</div>
+<div class="product-summary">
+  <p id="product-price"></p>
+  <p id="product-reference" class="product-reference"></p>
+  <ul id="product-specs" hidden></ul>
+  <p id="product-variation" hidden></p>
+  <a class="button" id="product-shop">Order on WhatsApp ↗</a>
+  <p class="order-note">Confirm availability and shipping on WhatsApp.</p>
+</div>
+</div>
+</section>
+</main>
+<footer><a class="brand" href="#" aria-label="Shreekamalinee home"><img src="logo-240.png" srcset="logo-240.png 240w, logo-480.png 480w" sizes="145px" loading="lazy" width="240" height="98" alt="Shreekamalinee"></a><div class="footer-links"><a href="#collections">Browse Collections ↗</a><a href="https://www.instagram.com/shreekamalinee_/">Instagram @shreekamalinee_ ↗</a></div>
+<p class='footer-copyright'>&copy; 2026 Shreekamalinee. All rights reserved. <a href="/admin" style="margin-left:1rem">Manage Products</a></p>
+</footer>
+<script src="catalog.js"></script>
+<script src="studio-photos.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

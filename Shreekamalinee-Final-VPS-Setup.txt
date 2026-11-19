@@ -1,0 +1,186 @@
+SHREEKAMALINEE — FINAL VPS DEPLOYMENT HANDOFF
+19 November 2026
+
+Deploy the verified VPS/PostgreSQL edition, including the admin panel and
+permanent local image storage. These steps assume Linux, systemd and Nginx.
+Adapt OS-specific commands and the Node executable path to your server.
+
+Package: Shreekamalinee-VPS-PostgreSQL-Verified-2026-11-19.zip
+Cloudflare Workers, D1 and R2 are not required for this edition.
+
+1. PREPARE THE SERVER AND DIRECTORIES
+
+Provide Node.js 24 (the tested version; package minimum is 22.13), npm,
+PostgreSQL, Nginx, unzip and rsync. Keep the Node and database ports private;
+public web traffic should enter through the HTTPS proxy.
+
+Create or reuse a non-root service account named shreekamalinee. Extract the
+CONTENTS of the ZIP's inner folder so these paths exist:
+
+  /opt/shreekamalinee/source
+  /opt/shreekamalinee/data
+  /opt/shreekamalinee/hosting
+
+Grant the service/deploy user write access to source for npm install/build
+and the admin setup helper. For this initial installation:
+
+  sudo chown -R shreekamalinee:shreekamalinee /opt/shreekamalinee
+  sudo install -d -m 0750 -o shreekamalinee -g shreekamalinee /var/lib/shreekamalinee/uploads
+
+The uploads path must be a real, permanent directory outside app releases,
+not a symlink. Retain it across all deployments.
+
+2. CREATE THE POSTGRESQL DATABASE
+
+Create a new empty database and dedicated non-superuser application role.
+The role needs permission to apply migrations and manage its own tables.
+For a local PostgreSQL installation, example administrator commands are:
+
+  sudo -u postgres createuser --pwprompt shreekamalinee_app
+  sudo -u postgres createdb --owner=shreekamalinee_app --encoding=UTF8 shreekamalinee
+
+Use the provider's equivalent procedure if PostgreSQL is managed elsewhere.
+Keep the database password private.
+
+3. CONFIGURE THE APPLICATION
+
+Run the following as the shreekamalinee service/deploy user:
+
+  cd /opt/shreekamalinee/source
+  cp .env.example .env.production
+  chmod 600 .env.production
+
+Privately edit .env.production:
+
+  NODE_ENV=production
+  DATABASE_URL=postgresql://shreekamalinee_app:URL_ENCODED_DB_PASSWORD@127.0.0.1:5432/shreekamalinee
+  UPLOAD_DIR=/var/lib/shreekamalinee/uploads
+  APP_ORIGIN=https://YOUR-STAGING-HOSTNAME
+  APP_BIND_HOST=127.0.0.1
+  PORT=3000
+  TRUST_PROXY=true
+
+Use the real PostgreSQL details and URL-encode special characters in the
+database password. Use the provider's required verified TLS settings for a
+remote database. Leave the ADMIN_* fields blank for the setup helper.
+
+APP_ORIGIN must be the exact HTTPS address used to access the NEW server.
+Use an HTTPS staging hostname initially; configure that same hostname in
+the Nginx template and its certificate. The final canonical origin will be
+https://shreekamalinee.com. Ensure .env.production remains owned/readable
+by the service user and has mode 600.
+
+4. INSTALL, IMPORT ONCE AND BUILD
+
+As the service/deploy user, from /opt/shreekamalinee/source:
+
+  npm ci --include=dev
+  npm run db:migrate
+  npm run catalog:import
+  rsync -a --ignore-existing ../data/media/ /var/lib/shreekamalinee/uploads/
+  npm run build
+
+--include=dev ensures TypeScript/Tailwind build tools are installed even if
+the server exports NODE_ENV=production. Import the catalog only once into
+the fresh database. The supplied snapshot contains 113 source products and
+194 selectable product photos. An empty data/media directory is expected
+for this snapshot; packaged photos are already included in source/public.
+
+5. START THE PRODUCTION SERVICE
+
+The supplied systemd unit runs Node in production mode on 127.0.0.1:3000.
+Check that /usr/bin/node is the correct executable and adjust ExecStart if
+needed. Adjust paths/user names if using a different directory layout.
+
+  sudo cp /opt/shreekamalinee/hosting/shreekamalinee.service /etc/systemd/system/shreekamalinee.service
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now shreekamalinee
+  sudo systemctl status shreekamalinee
+
+Inspect service logs with:
+
+  sudo journalctl -u shreekamalinee -n 50 --no-pager
+
+6. CONFIGURE NGINX AND HTTPS
+
+Use hosting/nginx-shreekamalinee.conf as the application proxy template.
+For staging, replace its hostnames, redirect destination and certificate
+paths consistently. Install valid certificates before enabling its TLS
+server blocks. hosting/nginx-bootstrap.conf is an optional HTTP/ACME
+bootstrap template for certificate issuance before TLS is available.
+
+Keep the supplied proxy headers, loopback upstream and 12m upload limit.
+TRUST_PROXY=true assumes a single trusted proxy that overwrites X-Real-IP
+and forwarded headers, with port 3000 inaccessible from the Internet.
+
+  sudo nginx -t
+  sudo systemctl reload nginx
+
+Configure and test automatic certificate renewal. If using ACME webroot
+renewal, the FINAL port-80 server must retain the challenge-path exception
+and put the general HTTPS redirect in location /. Its current server-level
+redirect must not remain ahead of that exception. Alternatively use the
+provider's DNS/nginx certificate renewal method. The bootstrap file alone
+is not the ongoing renewal configuration.
+
+7. SET UP THE ADMIN LOGIN AFTER HTTPS IS READY
+
+Only after the app and staging HTTPS address are working, run the setup
+helper as the service user. Replace /usr/bin/node if the actual path differs:
+
+  sudo -u shreekamalinee -H /usr/bin/node /opt/shreekamalinee/source/scripts/setup-admin.mjs --env-file /opt/shreekamalinee/source/.env.production
+  sudo systemctl restart shreekamalinee
+
+The helper reads APP_ORIGIN from that file, writes fresh setup secrets and
+prints a PRIVATE setup link valid for one hour. Send that link privately to
+the website owner. The owner opens it on the NEW server, sets username
+bhagyashree and chooses a password of at least 12 characters privately.
+Existing live-site passwords are not copied into this package.
+
+If the link expires before the owner completes setup, rerun the helper and
+restart the service. The helper will refuse to overwrite an existing admin.
+
+After setup succeeds, remove ONLY these two fields from .env.production:
+
+  ADMIN_SETUP_TOKEN_HASH
+  ADMIN_SETUP_EXPIRES_AT
+
+Retain ADMIN_PASSWORD_PEPPER unchanged, keep the file private, and restart:
+
+  sudo systemctl restart shreekamalinee
+
+The owner then signs in at the current HTTPS hostname followed by /admin.
+
+8. ACCEPTANCE CHECK AND DOMAIN CUTOVER
+
+Check every collection, prices with + shipping, full-photo framing and swipe
+navigation. Upload two images in bulk, confirm one product per image, its
+category price, SK-ProductNameWithoutSpaces reference and matching WhatsApp
+request to 919820785210. Check category editing and hide the test products.
+Restart the app and confirm that the uploaded photos and products remain.
+
+Before cutover, migrate the latest catalog if the live admin has changed
+products/prices after the supplied snapshot. Then update APP_ORIGIN to
+https://shreekamalinee.com, configure the final apex/www Nginx names and
+certificates, restart the app and validate Nginx.
+
+Switch only the website DNS records to the new VPS, removing conflicting
+website records while preserving email/MX and unrelated TXT records. Verify
+both https://shreekamalinee.com and https://www.shreekamalinee.com. The latter
+should redirect to the apex. Retain old hosting until cutover is confirmed.
+
+Final admin address: https://shreekamalinee.com/admin
+Use the username/password created during the destination setup. A new
+domain login is expected; do not run initial admin setup again after cutover.
+
+9. BACKUPS AND LATER UPDATES
+
+Back up PostgreSQL, /var/lib/shreekamalinee/uploads and protected runtime
+configuration to a separate location. Test restoration and certificate renewal.
+Keep the database, uploads folder and ADMIN_PASSWORD_PEPPER across releases.
+For normal updates: install dependencies, apply new migrations, build and
+restart. Do not reimport the initial catalog or create a fresh admin again.
+
+The verified package includes verification-summary.json, SHA256SUMS.txt,
+hosting templates and browser proof. Its production checks passed locally;
+the provider must still validate the actual VPS configuration and public DNS/TLS.
